@@ -1,0 +1,24 @@
+{
+  "name": "discordjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aad61404/discordJS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aad61404/discordJS/issues"
+  },
+  "homepage": "https://github.com/aad61404/discordJS#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "form-data": "^3.0.0",
+    "node-fetch": "^2.6.0"
+  }
+}
