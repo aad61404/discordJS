@@ -1,56 +1,80 @@
-const http = require('http');
 const fs = require('fs');
-const url = require('url');
-const fetch = require('node-fetch');
-const FormData = require('form-data');
+const Discord = require('discord.js');
+const { prefix, token } = require('./config.json');
 
-const port = 53134;
+const client = new Discord.Client();
+client.commands = new Discord.Collection();
+const cooldowns = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-http.createServer((req, res) => {
-	let responseCode = 404;
-	let content = '404 Error';
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	client.commands.set(command.name, command);
+}
 
-	const urlObj = url.parse(req.url, true);
+// run the command
+require(`./handlers/print.js`)(client);
+// Run the command loader
+// ["print"].forEach(handler => {
+// 	require(`./handlers/${handler}`)(client);
+// });
 
-	if (urlObj.query.code) {
-		const accessCode = urlObj.query.code;
-		const data = new FormData();
 
-		data.append('client_id', '654617847657529354');
-		data.append('client_secret', 'baXXCXyHodj0bB7E4RfbAoRFdZAMTv7G');
-		data.append('grant_type', 'authorization_code');
-		data.append('redirect_uri', 'your redirect url');
-		data.append('scope', 'your scopes');
-		data.append('code', accessCode);
+client.once('ready', () => {
+	console.log('Ready!');
+});
 
-		fetch('https://discordapp.com/api/oauth2/token', {
-			method: 'POST',
-			body: data,
-		})
-			.then(discordRes => discordRes.json())
-			.then(info => {
-				console.log(info);
-				return info;
-			})
-			.then(info => fetch('https://discordapp.com/api/users/@me', {
-				headers: {
-					authorization: `${info.token_type} ${info.access_token}`,
-				},
-			}))
-			.then(userRes => userRes.json())
-			.then(console.log);
+client.on('message', message => {
+	if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+	const args = message.content.slice(prefix.length).split(/ +/);
+	const commandName = args.shift().toLowerCase();
+
+	const command = client.commands.get(commandName)
+		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
+	if (!command) return;
+
+	if (command.guildOnly && message.channel.type !== 'text') {
+		return message.reply('I can\'t execute that command inside DMs!');
 	}
 
-	if (urlObj.pathname === '/') {
-		responseCode = 200;
-		content = fs.readFileSync('./index.html');
+	if (command.args && !args.length) {
+		let reply = `You didn't provide any arguments, ${message.author}!`;
+
+		if (command.usage) {
+			reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
+		}
+
+		return message.channel.send(reply);
 	}
 
-	res.writeHead(responseCode, {
-		'content-type': 'text/html;charset=utf-8',
-	});
+	if (!cooldowns.has(command.name)) {
+		cooldowns.set(command.name, new Discord.Collection());
+	}
 
-	res.write(content);
-	res.end();
-})
-	.listen(port);
+	const now = Date.now();
+	const timestamps = cooldowns.get(command.name);
+	const cooldownAmount = (command.cooldown || 3) * 1000;
+
+	if (timestamps.has(message.author.id)) {
+		const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+		if (now < expirationTime) {
+			const timeLeft = (expirationTime - now) / 1000;
+			return message.reply(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
+		}
+	}
+
+	timestamps.set(message.author.id, now);
+	setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+
+	try {
+		command.execute(message, args);
+	} catch (error) {
+		console.error(error);
+		message.reply('there was an error trying to execute that command!');
+	}
+});
+
+client.login(token);
