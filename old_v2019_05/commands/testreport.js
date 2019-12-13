@@ -3,7 +3,7 @@ const Report = require("../models/report.js");
 const mongoose =require("mongoose");
 
 module.exports.run = async (bot, message, args) => {
-    mongoose.connect('mongodb+srv://test:test1234@cluster0-gravc.mongodb.net/test?retryWrites=true', {
+    mongoose.connect('', {
         useNewUrlParser: true
     })
     .then(() => console.log('MongoDB connected'))

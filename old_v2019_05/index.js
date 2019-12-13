@@ -1,16 +1,18 @@
 const Discord = require("discord.js");
 const botconfig = require("./botconfig.json");
 const tokenfile = require("./token.json");
-// const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const fs = require("fs");
 const bot = new Discord.Client({disableEveryone: true});
 bot.commands = new Discord.Collection();
 const Money = require("./models/money.js");
-// mongoose.connect('mongodb+srv://test:test1234@cluster0-gravc.mongodb.net/test?retryWrites=true', {
-//   useNewUrlParser: true
-// })
-// .then(() => console.log('MongoDB connected'))
-// .catch(err => console.log(err));
+const { mongodb } = require("./config.json");
+
+mongoose.connect( mongodb, {
+  useNewUrlParser: true
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.log(err));
 
 fs.readdir("./commands/", (err, files) => {
 

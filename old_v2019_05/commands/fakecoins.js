@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
 const Money = require("../models/money.js");
-// mongoose.connect('mongodb+srv://test:test1234@cluster0-gravc.mongodb.net/test?retryWrites=true', {
+// mongoose.connect('', {
 //   useNewUrlParser: true
 // })
 

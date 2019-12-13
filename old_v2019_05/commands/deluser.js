@@ -1,9 +1,9 @@
 const Discord = require("discord.js");
 const mongoose = require("mongoose");
 const Coins = require("../models/money.js");
-mongoose.connect('mongodb+srv://test:test1234@cluster0-gravc.mongodb.net/test?retryWrites=true', {
-  useNewUrlParser: true
-})
+// mongoose.connect('' , {
+//   useNewUrlParser: true
+// })
 
 
 module.exports.run = async (bot, message, args) => {

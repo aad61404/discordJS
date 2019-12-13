@@ -1,0 +1,6 @@
+{
+    "prefix": "",
+    "token": "your token ",
+    "mongodb" : "xxxxxx xxxxxx mongodb+srv  ",
+    "readme" : "change file name to config.json"
+  }
